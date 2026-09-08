@@ -2,17 +2,38 @@
 
 [![Tests](https://github.com/4xixixi/longtime/actions/workflows/tests.yml/badge.svg)](https://github.com/4xixixi/longtime/actions/workflows/tests.yml)
 
-面向长期 AI 编程任务的控制工作区：**监督者负责判断，Python 控制器负责状态，DSH 负责执行，MCP bridge 负责连接。**
+**低成本模型做日常工作，强模型在关键时刻兜底。**
 
-Longtime is an experimental control plane for long-running AI tasks, with a local DSH MCP bridge, recoverable transactions, single-writer leases, and independent acceptance checks.
+Longtime 是一套面向长期 AI 编程任务的分层模型协作系统。日常执行和例行监督交给低成本模型；遇到卡住、反复失败或复杂技术问题时，再由强模型诊断、纠偏，解决后把任务交回低成本模型继续执行。目标是在保持验收标准的前提下，减少昂贵模型的持续参与和重复工作。
+
+Longtime is an experimental model-tiered workflow for long-running AI tasks: lower-cost models handle routine work, stronger models step in for difficult failures, then hand execution back. It aims to reduce expensive-model usage while preserving independent acceptance checks.
 
 ```text
-用户目标 → 监督者 → Python 控制器：规划 / 租约 / 事务
-                    ↓
-                MCP bridge → DSH agent → 代码工作区
-                    ↓
-                执行结果 → 独立验收 → 下一阶段
+用户目标 → 低成本监督者 → 低成本执行模型（DSH）
+                              │
+                  ┌───────────┴───────────┐
+               正常完成                阻塞 / 失败
+                  ↓                       ↓
+               独立验收             强模型诊断、纠偏
+                  ↓                       ↓
+               下一阶段          低成本模型在原会话续跑
+                                          ↓
+                                       独立验收
+
+Python 控制器维护状态、重试边界与恢复记录；MCP bridge 连接执行器。
 ```
+
+## 如何减少消耗
+
+- **按需使用强模型**：让复杂异常进入独立处理事件，避免强模型全程执行和反复查询。
+- **解决后交回**：强模型完成纠偏后恢复原任务，由低成本执行模型继续工作。
+- **复用已有会话**：保存 session 和进度，减少中断后重新解释背景、重复调查和重复派发。
+- **限制无效循环**：设置返工、运行时间和异常处理次数上限；达到上限按策略停止或报告。
+- **保留验收标准**：用独立验证判断完成，不以“少调用模型”代替任务质量。
+
+“强/弱”是相对于具体任务的能力分工，不固定某个模型品牌，也不意味着便宜模型一定更弱。控制器负责按任务状态路由；模型档位由部署者配置，当前没有自动比价或按价格选择模型的功能。
+
+**目前尚无节省比例的实测结论。** 强模型兜底也会增加调用和上下文成本；如果低成本模型频繁失败，总消耗可能更高。评估应在相同任务和验收标准下，对比分层方案与全程强模型方案的总费用、token、完成率和耗时，包含监督、返工与异常处理开销。当前运行/重试限制不是完整的 token 或费用计量系统。
 
 ## 从哪里开始
 
@@ -68,7 +89,7 @@ Windows 可用 `py -3` 替换 `python`。上述测试不需要 DSH、模型账�
 
 ## 为什么值得保留
 
-适合跨会话恢复、多阶段验收和外部任务去重的个人自动化项目，也可作为可靠 agent 工作流的实现参考。对几分钟的一次性脚本，维护契约和状态的成本通常不划算。
+适合日常步骤较多、只有少数环节需要强模型介入的长期任务，也适合作为模型分工与成本控制的实验基础。跨会话恢复、独立验收和事件去重服务于这个目标。对几分钟的一次性脚本，或大部分步骤都超出低成本模型能力的任务，协作与返工开销可能抵消节省。
 
 ## 许可
 

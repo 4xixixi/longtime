@@ -1,5 +1,11 @@
 # Changelog
 
+## Documentation — model-tiered positioning
+
+- Lead with lower-cost routine execution and stronger-model fallback, followed by hand-back to the original execution flow.
+- Clarify model-role configuration, independent acceptance, and the distinction between state routing and automatic model selection.
+- Explain the intended savings mechanisms without claiming measured savings; outline equal-quality cost comparisons that include supervision and rework.
+
 ## 0.2.0 — integrated DSH bridge
 
 - Publish the local DSH MCP server, runtime adapter, configuration, dependency lockfile and optional session routing patch.
