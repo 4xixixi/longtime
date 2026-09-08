@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "captured_at": null,
+  "workspace": "REPLACE_ME",
+  "git_commit": null,
+  "git_branch": null,
+  "entries": [
+    {
+      "path": "REPLACE_ME",
+      "kind": "tracked_modified | tracked_deleted | untracked",
+      "mode": null,
+      "size": null,
+      "sha256": null
+    }
+  ],
+  "excluded_sensitive_paths": [],
+  "note": "Record every pre-existing dirty path. Hash through a non-logging helper; never place file contents or secrets in this manifest."
+}

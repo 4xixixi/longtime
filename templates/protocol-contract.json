@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "job_id": "REPLACE_ME",
+  "project_contract_sha256": null,
+  "specification_sha256": null,
+  "authorized_at": null,
+  "authorized_by_event_id": null,
+  "protocol_revision": 1,
+  "protocol_authority_sha256": null,
+  "canonical_replay_a": null,
+  "canonical_replay_b": null,
+  "canonical_formal": null,
+  "canonical_layer_binding": null,
+  "canonical_evidence_baseline": null,
+  "predecessors": [],
+  "preserved_protocol_revisions": [],
+  "preserved_failed_revisions": [],
+  "identity_policy": "Producer artifacts retain producer execution identity; a consuming job uses an external layer binding for consumer acceptance identity.",
+  "technical_revision_policy": "Sol may replace this contract only within the current job outcome, preserving project-contract gates, all old evidence, the old protocol contract, and an updated specification hash."
+}

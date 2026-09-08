@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "kind": "producer_consumer_layer_binding",
+  "producer": {
+    "job_id": "REPLACE_PRODUCER",
+    "state_path": "jobs/REPLACE_PRODUCER/state.json",
+    "specification_path": "jobs/REPLACE_PRODUCER/specification.md",
+    "protocol_contract_path": "jobs/REPLACE_PRODUCER/protocol-contract.json",
+    "specification_sha256": null,
+    "protocol_authority_sha256": null,
+    "protocol_contract_sha256": null,
+    "protocol_revision": 1
+  },
+  "consumer": {
+    "job_id": "REPLACE_CONSUMER",
+    "state_path": "jobs/REPLACE_CONSUMER/state.json",
+    "specification_path": "jobs/REPLACE_CONSUMER/specification.md",
+    "protocol_contract_path": "jobs/REPLACE_CONSUMER/protocol-contract.json",
+    "authority_record_path": "artifacts/REPLACE_CONSUMER/binding/consumer-authority.json",
+    "specification_sha256": null,
+    "protocol_authority_sha256": null,
+    "protocol_contract_sha256": null,
+    "protocol_revision": 1
+  },
+  "evidence": {
+    "profile": "REPLACE_PROFILE",
+    "closure_root": "results/REPLACE_ME",
+    "baseline_manifest": "artifacts/REPLACE_CONSUMER/binding/original_evidence_baseline.json",
+    "producer_artifacts": "artifacts/REPLACE_PRODUCER",
+    "producer_protocol_config": "config/REPLACE_ME.yaml",
+    "producer_formal_manifest": "artifacts/REPLACE_PRODUCER/manifest.json",
+    "scene_evidence_root": "results/REPLACE_SCENES"
+  }
+}

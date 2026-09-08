@@ -1,0 +1,85 @@
+{
+  "schema_version": 5,
+  "job_id": "REPLACE_ME",
+  "title": "REPLACE_ME",
+  "status": "DRAFT",
+  "created_at": null,
+  "updated_at": null,
+  "workspace": "/absolute/path/to/workspace",
+  "baseline": {
+    "git_commit": null,
+    "git_branch": null,
+    "working_tree_clean": null,
+    "path_manifest": "jobs/REPLACE_ME/baseline-paths.json",
+    "specification_sha256": null
+  },
+  "authorized_specification": {
+    "initial_baseline_sha256": null,
+    "current_sha256": null,
+    "authorized_at": null,
+    "authorized_by_event_id": null,
+    "protocol_revision": 1,
+    "protocol_authority_sha256": null,
+    "canonical_replay_a": null,
+    "canonical_replay_b": null,
+    "canonical_formal": null
+  },
+  "dsh": {
+    "mode": "implement",
+    "session_id": null,
+    "lifecycle_status": null,
+    "epoch_count": 0,
+    "auto_rework_count": 0,
+    "last_checked_at": null,
+    "last_result_summary": null,
+    "continuation_required": false,
+    "continuation_instruction": null
+  },
+  "limits": {
+    "max_auto_rework_epochs": 3,
+    "max_auto_runtime_hours": 6,
+    "api_budget_note": null
+  },
+  "runtime_tracking": {
+    "started_at": null,
+    "accumulated_seconds": 0,
+    "last_progress_at": null,
+    "progress_fingerprint": null,
+    "legacy_runtime_unknown": false
+  },
+  "controller": {
+    "state_revision": 0,
+    "semantic_revision": 0,
+    "event_generation": 0,
+    "current_event": null,
+    "event_history": [],
+    "legacy_event_ids": [],
+    "last_handled_event_id": null,
+    "protocol_contract_sha256": null,
+    "escalation_metrics": {
+      "total_dispatches": 0,
+      "legacy_count_lower_bound": 0,
+      "current_root_cause_signature": null,
+      "root_causes": {}
+    },
+    "escalation": {}
+  },
+  "verification": {
+    "commands": [],
+    "last_run_at": null,
+    "results": [],
+    "unverified_items": []
+  },
+  "decision": {
+    "needs_user": false,
+    "user_only_gate": null,
+    "route": null,
+    "reason": null
+  },
+  "user_gate": null,
+  "result": {
+    "accepted_at": null,
+    "summary": null,
+    "changed_files": []
+  }
+}
