@@ -1,90 +1,75 @@
 # Longtime
 
-文件驱动的长期 AI 任务控制器：用确定性状态机管理租约、任务路由、验收和中断恢复。
+[![Tests](https://github.com/4xixixi/longtime/actions/workflows/tests.yml/badge.svg)](https://github.com/4xixixi/longtime/actions/workflows/tests.yml)
 
-Longtime is an experimental, file-backed control plane for long-running AI tasks. It provides single-writer leases, write-ahead intents, recoverable commits, and evidence-based acceptance. The core uses only the Python standard library; live agent integrations are optional and environment-specific.
+面向长期 AI 编程任务的控制工作区：**监督者负责判断，Python 控制器负责状态，DSH 负责执行，MCP bridge 负责连接。**
 
-## 解决什么问题
-
-长任务常在会话中断、重复派发、任务规格漂移和“自报完成”处失控。Longtime 把技术判断交给模型，把可机械校验的规则交给 Python 控制器：
-
-- **单写者租约**：避免多个监督器同时修改任务状态。
-- **副作用意图记录**：外部调用前持久化 intent，恢复时优先找回原 session 或原事件。
-- **可恢复事务**：prepare/commit 与 hash 校验用于恢复跨文件状态写入；这不是数据库级多文件原子写。
-- **契约与验收**：绑定项目契约、协议 revision、任务规格和验收记录，拒绝未经授权的漂移。
-- **异常事件去重**：同一开放事件保留身份，异常处理与独立验收分开。
+Longtime is an experimental control plane for long-running AI tasks, with a local DSH MCP bridge, recoverable transactions, single-writer leases, and independent acceptance checks.
 
 ```text
-Scheduler / supervisor
-        |
-        v
-begin (lease + validation + one planned action)
-        |
-        +--> prepare-intent --> external executor / exception handler
-        |
-        v
-commit (validate + persist + release lease)
-        |
-        v
-runtime + queue + jobs + transaction history
+用户目标 → 监督者 → Python 控制器：规划 / 租约 / 事务
+                    ↓
+                MCP bridge → DSH agent → 代码工作区
+                    ↓
+                执行结果 → 独立验收 → 下一阶段
 ```
 
-LUNA、SOL、DSH 是原工作流的角色/执行接口名称。核心状态机无需调用任何模型；仓库不附带调度服务、模型凭据或 DSH bridge。
+## 从哪里开始
 
-## 快速体验
+- [完整使用教程](docs/quickstart.md)：离线体验、安装 DSH、启动 bridge、接入 Codex、初始化任务和定时监督。
+- [架构与一轮执行](docs/architecture.md)：状态转换、intent/commit、两套完成状态以及恢复边界。
+- [运行与排错](docs/operations.md)：暂停、升级、超时、session 恢复和权限。
+- [MCP 工具与环境变量](bridge/README.md)：六个工具及配置参考。
 
-需要 Python 3.10+；本地发布验证使用 Python 3.13。核心与测试没有第三方 Python 依赖。
+## 先跑离线版本
+
+需要 Python 3.10+、Node.js 22.16+。
 
 ```sh
 git clone https://github.com/4xixixi/longtime.git
 cd longtime
 python -m unittest discover -s tests -v
 python examples/demo.py
-python control/supervisor_ctl.py --help
+npm ci --prefix bridge
+npm test --prefix bridge
 ```
 
-Windows 可将 `python` 替换为 `py -3`。演示复用测试中的合成任务 fixture，在临时目录验证健康状态，再演示直接修改状态被拒绝，最后清理临时目录；不会启动模型、连接账户或触碰真实任务。它不是生产初始化器。
+Windows 可用 `py -3` 替换 `python`。上述测试不需要 DSH、模型账户或 API key。两个终端分别运行 `npm run demo --prefix bridge` 和 `npm run demo:client --prefix bridge`，可以观察模拟任务在真实 MCP 协议中的 start → continue → status。
+
+## 核心能力
+
+- 租约保证单写者；所有业务状态变更由控制器校验后提交。
+- 外部动作前保存 intent，超时后优先恢复原 session，避免盲目重复派发。
+- prepare/commit 事务与 hash 校验支持崩溃后的前滚恢复和漂移检测。
+- 项目契约、协议 revision 与独立验收记录约束任务边界。
+- bridge 提供 start、continue、status、list、cancel 和 ping；45 秒等待上限后可返回 running，让后台 epoch 继续。
+- 初始化器创建独立的 PAUSED 控制工作区；激活/暂停也通过 USER 事务执行。
 
 ## 目录
 
 | 路径 | 用途 |
 | --- | --- |
-| `control/supervisor_ctl.py` | 状态机、租约、事务、校验、路由 |
-| `control/exception_handler.py` | 可选的本地异常任务派发与恢复 |
-| `control/app_server_client.py` | 本地 App Server stdio 适配器 |
-| `control/handler_capabilities.py` | 实际执行权限与工作区能力校验 |
-| `control/invoke-supervisor.ps1` | Windows Python 入口包装 |
-| `templates/` | job state、规格、协议、结果等模板 |
-| `tests/` | 自建临时 fixture 的回归测试 |
-| `examples/demo.py` | 无外部依赖的控制器演示 |
+| `control/` | Python 控制器、可选 Codex 异常处理适配器、详细协议 |
+| `bridge/` | DSH runtime 启动、MCP server、runner、lockfile、离线测试 |
+| `scripts/` | 独立工作区初始化、受控激活/暂停 |
+| `templates/` | 任务规格、状态、协议与结果模板 |
+| `examples/` | 离线演示、Codex MCP 配置、监督者提示 |
+| `docs/` | 从零使用教程、架构、运维 |
+| `tests/` | Python 回归测试 |
 | `AGENTS.md` | 自动运行协议 |
 
-协议详情见 [workflow v8.1](control/workflow-v8.1-spec.md)、[提交格式](control/commit-request-guide.md)、[策略](control/policy.md)、[监督器提示](control/supervisor-prompt.md) 和 [异常处理提示](control/exception-handler-prompt.md)。
+## 当前边界
 
-## 接入真实工作区
+这是从个人长期任务环境提取的工程原型。真实 DSH runtime 适配的本地版本是 `0.1.2-rc.1`；上游插件 API 和 Codex 本地异常处理接口变化时需要重新验证。真实 provider 配置、模型额度和系统权限由部署者提供。公开仓库不携带真实任务历史、会话、个人路径或凭据。
 
-公开仓库只包含通用源码，不包含可直接继续的真实任务状态。当前没有通用的一键生产初始化命令：
+核心支持一个项目的单写者调度；还没有通用 Web UI、自动安装的常驻服务或全自动生产配置。初始化器生成的最小契约需要结合实际规格补齐 baseline 和验收标准。MCP completed 只表示 epoch 结束，任务通过仍需独立验收。
 
-1. 按自己的目标建立 `control/project-contract.json`、`runtime.json`、`queue.json`，并依据模板填写 `jobs/<job-id>/`。字段结构可参考测试中的 `make_root()`；其中 session、hash、工作区等合成值必须替换为真实数据。
-2. 核对契约、规格和 hash 后，使用 `python control/supervisor_ctl.py --root /absolute/control-root bootstrap` 建立初始事务快照。`bootstrap` 只处理已准备好的状态，不会替你生成项目。
-3. 使用 `python control/supervisor_ctl.py --root /absolute/control-root check` 只读检查。`--root` 放在子命令之前。
-4. 配置自己的调度和执行器，遵守 `begin → prepare-intent（需要外部动作时）→ commit`；初始化后所有状态变更通过事务提交。
+详细变更见 [CHANGELOG](CHANGELOG.md)。DSH 本体通过 [上游项目](https://github.com/deepseek-ai/deepseek-harness) 安装，不打包 node_modules；相关依赖信息见 [THIRD_PARTY_NOTICES](THIRD_PARTY_NOTICES.md)。
 
-检查时解析 JSON 的 `ok`、`status`、`error`，不能只依赖 CLI 退出码；部分非健康结果仍以零退出码返回。
+## 为什么值得保留
 
-## 集成限制
-
-- 异常处理适配器来自 Windows 本地环境，依赖已安装的 Codex runtime，以及其 App Server 和本地状态/rollout 格式。平台升级后需要重新验证；通过单元测试不代表真实模型派发已联调通过。
-- 异常处理入口显式请求 Full Access 与 `approvalPolicy=never`。部署者必须先授权和审核该执行方式；控制器的业务门禁不能替代操作系统隔离。
-- DSH bridge、机器专用 session-routing 补丁、系统登录任务和特定项目的迁移脚本未打包。需要执行真实 DSH 任务时，自行提供对应接口。
-- 当前是单项目、单写者的实验性实现；核心控制器仍较大，尚未拆为稳定公共库，也没有通用 UI、安装包或生产支持承诺。
-
-## 精简范围与价值
-
-此仓库从实际长期任务工作区提取，保留控制器、8 个测试模块和通用协议模板。排除了真实 job、事务/心跳记录、诊断备份、运行缓存、个人任务清单、项目专属契约和机器路径；原工作区继续独立保存这些资料。
-
-适合需要跨会话恢复、多阶段验收和外部任务去重的个人自动化项目，也适合作为可靠 agent 工作流的实现参考。若只做几分钟的一次性脚本，这套契约和状态维护成本通常不划算。后续最值得做的是通用初始化器、执行器接口和控制器模块拆分。
+适合跨会话恢复、多阶段验收和外部任务去重的个人自动化项目，也可作为可靠 agent 工作流的实现参考。对几分钟的一次性脚本，维护契约和状态的成本通常不划算。
 
 ## 许可
 
-当前未授予开源许可证。公开可见不等于授予任意复制、修改或分发许可；复用前请联系仓库所有者。
+当前未授予本仓库代码的开源许可证；公开可见不等于授予任意复制、修改或分发许可。第三方组件按各自许可证提供。

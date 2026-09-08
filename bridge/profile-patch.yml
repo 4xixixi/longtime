@@ -1,0 +1,17 @@
+# dsh-mcp-bridge overlay: replace the one-shot headless runner with the
+# long-lived bridge runner. Applied as a --patch overlay on the
+# dsh-mcp-bridge profile (bundles: dsh-base + dsh-headless).
+#
+# - headless-startup / headless-runner are the one-shot rows from the
+#   headless bundle; they are disabled so no task parsing/exit logic runs.
+# - bridge-runner is inserted and resolved by the Loader against the profile
+#   directory (loader baseUrl), where bridge.mjs writes bridge-runner.mjs.
+- id: headless-startup
+  disabled: true
+
+- id: headless-runner
+  disabled: true
+
+- insert:
+    - id: bridge-runner
+      name: './bridge-runner.mjs'

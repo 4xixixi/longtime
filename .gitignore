@@ -25,3 +25,8 @@ control/requests/
 control/stale-leases/
 control/bridge-logs/
 control/handler-runs/
+node_modules/
+.npm-cache/
+.dsh/
+*.pid
+logs/

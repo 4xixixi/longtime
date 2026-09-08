@@ -1,0 +1,6 @@
+# Merge this table into your Codex config; do not replace the whole file.
+# Start the persistent bridge separately before connecting.
+[mcp_servers.dsh]
+url = "http://127.0.0.1:3420/mcp"
+startup_timeout_sec = 20
+tool_timeout_sec = 60
