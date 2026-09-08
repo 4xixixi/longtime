@@ -2,6 +2,7 @@
 
 ## Documentation — model-tiered positioning
 
+- Add an author-reported overnight example: Codex scheduled supervision, eight rounds over roughly six hours, one exception intervention, and separately reported Plus quota / OpenCode Go credit usage. These observations are not a measured savings benchmark.
 - Lead with lower-cost routine execution and stronger-model fallback, followed by hand-back to the original execution flow.
 - Clarify model-role configuration, independent acceptance, and the distinction between state routing and automatic model selection.
 - Explain the intended savings mechanisms without claiming measured savings; outline equal-quality cost comparisons that include supervision and rework.
